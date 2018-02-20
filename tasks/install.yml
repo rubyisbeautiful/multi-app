@@ -1,0 +1,8 @@
+---
+
+- set_fact:
+    app_type: "{{ installation_by_type.key }}"
+
+- include_tasks: install_each.yml
+  with_items: "{{ installation_by_type.value }}"
+  when: app_type in multiapp_app_type

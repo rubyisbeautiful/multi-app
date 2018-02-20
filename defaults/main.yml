@@ -1,0 +1,38 @@
+---
+
+# required per installation:
+# - app_version
+#   app_extracted_dir
+#   app_artifact
+
+# optionally, you can override any of theses defaults per installation,
+# by removing _default from the variable.  For example:
+#
+# multiapp_app_installations:
+#   java:
+#     - app_version: 1.8.0_121-64bit
+#       app_extracted_dir: jdk1.8.0_121-64bit
+#       app_artifact: http://some.internal.repo/mirrors/jdk1.8.0_121-64bit.tar.gz
+#       app_owner: foo
+#
+
+multiapp_app_type: [app]
+
+multiapp_app_owner_default: ansible
+multiapp_app_group_default: ansible
+
+multiapp_app_install_dir_mode_default: "0755"
+multiapp_app_archive_mode_default: "0755"
+
+multiapp_app_install_dir_default: /apps
+multiapp_app_download_path_default: /tmp/multiapp
+
+multiapp_app_remove_download_default: false
+multiapp_download_timeout_default: 60
+multiapp_archive_extension_default: tar.gz
+
+multiapp_become: true
+
+multiapp_ignore_tag_file: false
+
+multiapp_debug_output: false

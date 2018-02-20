@@ -1,0 +1,124 @@
+---
+
+- set_fact:
+    app_install_path: "{{ multiapp_app_install_dir_default }}/{{ app_type }}"
+
+- set_fact:
+    app_install_path: "{{ item.app_install_dir }}"
+  when: item.app_install_dir is defined
+
+- set_fact:
+    app_version: "{{ item.app_version }}"
+    app_download_path: "{{ item.app_download_path | default(multiapp_app_download_path_default) }}"
+    app_extension: "{{ item.app_archive_extension | default(multiapp_archive_extension_default) }}"
+    app_owner: "{{ item.app_owner | default(multiapp_app_owner_default) }}"
+    app_group: "{{ item.app_group | default(multiapp_app_group_default) }}"
+    app_timeout: "{{ item.download_timeout | default(multiapp_download_timeout_default) }}"
+    app_install_dir_mode: "{{ item.app_install_dir_mode | default(multiapp_app_install_dir_mode_default) }}"
+    app_archive_dir_mode: "{{ item.app_archive_mode | default(multiapp_app_archive_mode_default) }}"
+    app_state: "{{ item.app_state | default('present') }}"
+  tags:
+    - install
+
+- block:
+
+  - name: check if we have a complete {{ app_type }} installation of {{ item.app_version }}
+    stat:
+      path: "{{ app_install_path }}/{{ item.app_extracted_dir }}/ansible.tag"
+    register: found_existing
+    tags:
+      - install
+
+  - name: debug output of app version
+    debug:
+      msg: "app version is {{ app_version }}"
+    when: multiapp_debug_output
+    tags:
+      - install
+
+  - name: mkdir for fetching {{ app_type }} version {{ app_version }}
+    file:
+      path: "{{ app_download_path }}"
+      state: directory
+    when: multiapp_ignore_tag_file or found_existing.stat.exists == False
+    tags:
+      - install
+
+  - name: get app artifact for {{ app_type }} version {{ app_version }} 
+    get_url:
+      url:     "{{ item.app_artifact }}"
+      dest:    "{{ app_download_path }}/{{ app_version }}.{{ app_extension }}"
+      timeout: "{{ app_timeout }}"
+      tmp_dest: "{{ app_download_path }}"
+    when: multiapp_ignore_tag_file or found_existing.stat.exists == False
+    tags:
+      - install
+
+  - name: mkdir for {{ app_type }} version {{ app_version }}
+    become: "{{ multiapp_become }}"
+    file:
+      path: "{{ app_install_path }}"
+      state: directory
+      owner: "{{ app_owner }}"
+      group: "{{ app_group }}"
+      mode: "{{ app_install_dir_mode }}"
+    when: multiapp_ignore_tag_file or found_existing.stat.exists == False
+    tags:
+      - install
+
+  - name: install {{app_type }} version {{ app_version }}
+    become: "{{ multiapp_become }}"
+    unarchive:
+      src: "{{ app_download_path }}/{{ app_version }}.{{ app_extension }}"
+      dest: "{{ app_install_path }}"
+      owner: "{{ app_owner }}"
+      group: "{{ app_group }}"
+      mode: "{{ app_archive_dir_mode }}"
+      remote_src: true
+    when: multiapp_ignore_tag_file or found_existing.stat.exists == False
+    tags:
+      - install
+
+  - name: create tag file for {{app_type}} version {{ app_version }} 
+    become: "{{ multiapp_become }}"
+    file:
+      path: "{{ app_install_path }}/{{ item.app_extracted_dir }}/ansible.tag"
+      state: touch
+      owner: "{{ app_owner }}"
+      group: "{{ app_group }}"
+    when: not multiapp_ignore_tag_file and found_existing.stat.exists == False
+    tags:
+      - install
+
+  - name: symlink if requested
+    file:
+      src:   "{{ app_install_path }}/{{ item.app_extracted_dir }}"
+      dest:  "{{ app_install_path }}/{{ item.app_symlink }}"
+      state: link
+    when: item.app_symlink is defined
+    tags:
+      - install
+
+  - name: remove downloaded files if requested for {{ app_type }} version {{ app_version }} 
+    file:
+      path: "{{ item.app_download_path }}"
+      state: absent
+    ignore_errors: true
+    when: (item.app_remove_download | default(multiapp_app_remove_download_default)) and item.app_download_path
+    tags:
+      - install
+
+  when: app_state == 'present'
+
+
+- block:
+
+  - name: remove "{{ app_install_path }}/{{ item.app_extracted_dir }}"
+    become: "{{ multiapp_become }}"
+    file:
+      path: "{{ app_install_path }}/{{ item.app_extracted_dir }}"
+      state: absent
+    tags:
+      - install
+
+  when: app_state == 'absent'

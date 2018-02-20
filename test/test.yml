@@ -1,0 +1,26 @@
+---
+# ansible-playbook -i /code/ansible-roles/ansible-multi-app/test/inventory /code/ansible-roles/ansible-multi-app/test/test.yml --syntax-check
+# ansible-playbook -i /code/ansible-roles/ansible-multi-app/test/inventory /code/ansible-roles/ansible-multi-app/test/test.yml --connection=local
+# ansible-playbook -i /code/ansible-roles/ansible-multi-app/test/inventory /code/ansible-roles/ansible-multi-app/test/test.yml --connection=local | grep -q 'changed=0.*failed=0' && (echo 'Idempotence test: pass' && exit 0) || (echo 'Idempotence test: fail' && exit 1)
+
+- hosts: localhost
+  remote_user: root
+  vars:
+    multiapp_app_type: [foo]
+    multiapp_app_owner_default: root
+    multiapp_app_group_default: root
+    multiapp_app_installations:
+      foo:
+        - app_version: 1.2.3
+          app_extracted_dir: dummy
+          app_artifact: file:///code/ansible-roles/ansible-multi-app/test/dummy.tgz
+          app_symlink: schmerp
+  roles:
+    - ansible-multi-app
+  post_tasks:
+    - stat:
+        path: /apps/foo/schmerp
+      register: link
+    - fail:
+        msg: link is not present
+      when: link.stat.exists == False or link.stat.islnk == False

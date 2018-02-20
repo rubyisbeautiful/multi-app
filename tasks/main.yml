@@ -1,0 +1,14 @@
+---
+
+- name: verify multiapp_app_type is set
+  fail:
+    msg: required var 'multiapp_app_type' is not defined
+  when: multiapp_app_type is undefined
+
+- include_tasks: install.yml
+  with_dict: "{{ multiapp_app_installations }}"
+  when: multiapp_app_installations is defined
+  loop_control:
+    loop_var: installation_by_type
+
+- include_tasks: clean.yml

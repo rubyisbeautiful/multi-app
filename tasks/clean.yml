@@ -1,0 +1,10 @@
+---
+
+- name: remove all downloaded files from default path if requested
+  file:
+    path: "{{ multiapp_app_download_path_default) }}"
+    state: absent
+  ignore_errors: true
+  when: multiapp_app_remove_download_default
+  tags:
+    - clean

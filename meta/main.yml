@@ -1,0 +1,19 @@
+---
+
+galaxy_info:
+  author: rubyisbeautiful
+  description: >
+    Multiple app installer, for downloading and installing self-contained binary
+    packages from 3rd parties, such as Java, Tomcat, Node.js, etc
+  company: rubyisbeautiful
+  license: MIT
+  min_ansible_version: 2.0.0
+  # Only including platforms that have actually been used/tested
+  platforms:
+  - name: EL
+    versions:
+    - 6
+    - 7
+  categories:
+    - cloud
+dependencies: []
