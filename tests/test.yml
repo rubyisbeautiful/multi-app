@@ -1,0 +1,25 @@
+---
+
+- hosts: all
+
+  vars:
+    multiapp_app_type: [foo]
+    multiapp_app_owner_default: root
+    multiapp_app_group_default: root
+    multiapp_app_installations:
+      foo:
+        - app_version: 1.2.3
+          app_extracted_dir: dummy
+          app_artifact: file:///etc/ansible/roles/role_under_test/tests/dummy.tgz
+          app_symlink: schmerp
+
+  roles:
+    - role_under_test
+
+  post_tasks:
+    - stat:
+        path: /apps/foo/schmerp
+      register: link
+    - fail:
+        msg: link is not present
+      when: link.stat.exists == False or link.stat.islnk == False
