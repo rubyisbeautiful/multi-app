@@ -1,4 +1,5 @@
 # ansible-multi-app
+[![Build Status](https://semaphoreci.com/api/v1/rubyisbeautiful/multi-app/branches/master/badge.svg)](https://semaphoreci.com/rubyisbeautiful/multi-app)
 
 ## Overview
 
