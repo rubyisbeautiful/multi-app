@@ -1,5 +1,6 @@
 # ansible-multi-app
 [![Build Status](https://semaphoreci.com/api/v1/rubyisbeautiful/multi-app/branches/master/badge.svg)](https://semaphoreci.com/rubyisbeautiful/multi-app)
+[![Build Status](https://travis-ci.org/rubyisbeautiful/multi-app.svg?branch=master)](https://travis-ci.org/rubyisbeautiful/multi-app)
 
 ## Overview
 
@@ -247,3 +248,4 @@ Author Information
 rubyisbeautiful
 
 Thanks to some helpful suggestions from my colleagues
+
